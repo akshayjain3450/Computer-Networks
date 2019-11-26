@@ -1,0 +1,395 @@
+********************   ABOUT TCPDUMP Command in LINUX   ***********************
+
+
+Tcpdump prints out a description of the contents of packets on a network
+interface that match the boolean expression; the description is preceded by
+a time stamp, printed, by default, as hours, minutes, seconds, and fractions
+of a second since midnight. It can also be run with the -w flag, which causes
+it to save the packet data to a file for later analysis, and/or with the -r
+flag, which causes it to read from a saved packet file rather than to read
+packets from a network interface. It can also be run with the -V flag, which
+causes it to read a list of saved packet files. In all cases, only packets that
+match expression will be processed by tcpdump.
+
+Tcpdump will, if not run with the -c flag, continue capturing packets until it
+is interrupted by a SIGINT signal (generated, for example, by typing your
+interrupt character, typically control-C) or a SIGTERM signal (typically
+generated with the kill(1) command); if run with the -c flag, it will
+capture packets until it is interrupted by a SIGINT or SIGTERM signal or the
+specified number of packets have been processed.
+
+When tcpdump finishes capturing packets, it will report counts of:
+
+1. packets "captured" (this is the number of packets that tcpdump has received
+   and processed);
+2. packets "received by filter" (the meaning of this depends on the OS on
+   which you're running tcpdump, and possibly on the way the OS was
+   configured - if a filter was specified on the command line, on some OSes
+   it counts packets regardless of whether they were matched by the filter
+   expression and, even if they were matched by the filter expression,
+   regardless of whether tcpdump has read and processed them yet, on other
+   OSes it counts only packets that were matched by the filter expression
+   regardless of whether tcpdump has read and processed them yet, and on other
+   OSes it counts only packets that were matched by the filter expression and
+   were processed by tcpdump);
+3. packets "dropped by kernel" (this is the number of packets that were
+   dropped, due to a lack of buffer space, by the packet capture mechanism in
+   the OS on which tcpdump is running, if the OS reports that information to
+   applications; if not, it will be reported as 0).
+
+On platforms that support the SIGINFO signal, such as most BSDs (including
+macOS) and Digital/Tru64 UNIX, it will report those counts when it receives
+a SIGINFO signal (generated, for example, by typing your "status" character,
+typically control-T, although on some platforms, such as macOS, the "status"
+character is not set by default, so you must set it with stty(1) in order
+to use it) and will continue capturing packets. On platforms that do not
+support the SIGINFO signal, the same can be achieved by using the SIGUSR1
+signal.
+
+Using the SIGUSR2 signal along with the -w flag will forcibly flush the packet
+buffer into the output file.
+
+*********************             EXAMPLES              ************************
+
+=> To print all packets arriving at or departing from google.com:
+Command Line Input: tcpdump host google.com
+Command Line Output:
+tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
+listening on wlo1, link-type EN10MB (Ethernet), capture size 262144 bytes
+23:06:18.791186 IP akshay.52534 > maa03s22-in-f14.1e100.net.https: Flags [.], ack 3012892831, win 339, options [nop,nop,TS val 129181612 ecr 2642170845], length 0
+23:06:18.891215 IP maa03s22-in-f14.1e100.net.https > akshay.52534: Flags [.], ack 1, win 12, options [nop,nop,TS val 2642217735 ecr 129089341], length 0
+23:06:52.352489 IP akshay.44441 > maa03s22-in-f14.1e100.net.443: UDP, length 1350
+23:06:52.453644 IP akshay.44441 > maa03s22-in-f14.1e100.net.443: UDP, length 1350
+23:06:52.475501 IP maa03s22-in-f14.1e100.net.443 > akshay.44441: UDP, length 36
+23:06:52.475805 IP maa03s22-in-f14.1e100.net.443 > akshay.44441: UDP, length 1350
+23:06:52.479475 IP akshay.44441 > maa03s22-in-f14.1e100.net.443: UDP, length 47
+23:06:52.483281 IP akshay.44441 > maa03s22-in-f14.1e100.net.443: UDP, length 547
+23:06:52.578286 IP maa03s22-in-f14.1e100.net.443 > akshay.44441: UDP, length 23
+23:06:52.578371 IP maa03s22-in-f14.1e100.net.443 > akshay.44441: UDP, length 23
+23:06:52.579167 IP maa03s22-in-f14.1e100.net.443 > akshay.44441: UDP, length 947
+23:06:52.579332 IP maa03s22-in-f14.1e100.net.443 > akshay.44441: UDP, length 16
+23:06:52.581057 IP akshay.44441 > maa03s22-in-f14.1e100.net.443: UDP, length 28
+23:07:03.895200 IP akshay.52534 > maa03s22-in-f14.1e100.net.https: Flags [.], ack 1, win 339, options [nop,nop,TS val 129226561 ecr 2642217735], length 0
+23:07:03.957742 IP maa03s22-in-f14.1e100.net.https > akshay.52534: Flags [.], ack 1, win 12, options [nop,nop,TS val 2642262645 ecr 129089341], length 0
+23:07:07.484907 IP akshay.44441 > maa03s22-in-f14.1e100.net.443: UDP, length 23
+23:07:07.574717 IP maa03s22-in-f14.1e100.net.443 > akshay.44441: UDP, length 20
+23:07:48.977397 IP akshay.52534 > maa03s22-in-f14.1e100.net.https: Flags [.], ack 1, win 339, options [nop,nop,TS val 129271578 ecr 2642262645], length 0
+23:07:49.135818 IP maa03s22-in-f14.1e100.net.https > akshay.52534: Flags [.], ack 1, win 12, options [nop,nop,TS val 2642307780 ecr 129089341], length 0
+23:08:36.007071 IP akshay.52534 > maa03s22-in-f14.1e100.net.https: Flags [.], ack 1, win 339, options [nop,nop,TS val 129318611 ecr 2642307780], length 0
+23:08:36.112572 IP maa03s22-in-f14.1e100.net.https > akshay.52534: Flags [.], ack 1, win 12, options [nop,nop,TS val 2642354755 ecr 129089341], length 0
+23:08:47.003888 IP maa03s22-in-f14.1e100.net.https > akshay.52534: Flags [P.], seq 1:57, ack 1, win 12, options [nop,nop,TS val 2642365372 ecr 129089341], length 56
+23:08:47.003977 IP maa03s22-in-f14.1e100.net.https > akshay.52534: Flags [F.], seq 57, ack 1, win 12, options [nop,nop,TS val 2642365372 ecr 129089341], length 0
+23:08:47.004467 IP akshay.52534 > maa03s22-in-f14.1e100.net.https: Flags [F.], seq 1, ack 58, win 339, options [nop,nop,TS val 129329609 ecr 2642365372], length 0
+23:08:47.171053 IP maa03s22-in-f14.1e100.net.https > akshay.52534: Flags [F.], seq 57, ack 1, win 12, options [nop,nop,TS val 2642365498 ecr 129089341], length 0
+23:08:47.171142 IP akshay.52534 > maa03s22-in-f14.1e100.net.https: Flags [.], ack 58, win 339, options [nop,nop,TS val 129329776 ecr 2642365498,nop,nop,sack 1 {57:58}], length 0
+23:08:47.271035 IP akshay.52534 > maa03s22-in-f14.1e100.net.https: Flags [F.], seq 1, ack 58, win 339, options [nop,nop,TS val 129329876 ecr 2642365498], length 0
+23:08:47.307460 IP maa03s22-in-f14.1e100.net.https > akshay.52534: Flags [.], ack 2, win 12, options [nop,nop,TS val 2642365705 ecr 129329609], length 0
+23:08:47.385857 IP maa03s22-in-f14.1e100.net.https > akshay.52534: Flags [.], ack 2, win 12, options [nop,nop,TS val 2642365995 ecr 129329776], length 0
+23:08:47.385977 IP akshay.52534 > maa03s22-in-f14.1e100.net.https: Flags [R], seq 864982374, win 0, length 0
+^C
+30 packets captured
+34 packets received by filter
+0 packets dropped by kernel
+
+
+=> To print traffic between google.com and youtube.com:
+Command Line Input: tcpdump host google.com and youtube.com
+Command Line Output:
+tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
+listening on wlo1, link-type EN10MB (Ethernet), capture size 262144 bytes
+^C
+0 packets captured
+6 packets received by filter
+0 packets dropped by kernel
+
+
+=> To print all IP packets between google.com and any host except youtube.com:
+Command Line Input: tcpdump ip host google.com and not youtube.com
+Command Line Output:
+tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
+listening on wlo1, link-type EN10MB (Ethernet), capture size 262144 bytes
+^C
+0 packets captured
+6 packets received by filter
+0 packets dropped by kernel
+
+
+
+=> To print all traffic between local hosts and hosts at 192.168.43.168:
+Command Line Input: tcpdump net 192.168.43.168
+Comamand Line Output:
+tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
+listening on wlo1, link-type EN10MB (Ethernet), capture size 262144 bytes
+23:46:03.205506 IP akshay.43799 > 239.255.255.250.1900: UDP, length 172
+23:46:03.206434 IP akshay.42560 > _gateway.domain: 32932+ PTR? 250.255.255.239.in-addr.arpa. (46)
+23:46:03.639091 IP _gateway.domain > akshay.42560: 32932 NXDomain 0/1/0 (103)
+23:46:03.642261 IP akshay.42907 > _gateway.domain: 19244+ PTR? 168.43.168.192.in-addr.arpa. (45)
+23:46:03.650303 IP _gateway.domain > akshay.42907: 19244* 1/0/0 PTR akshay. (65)
+23:46:03.651952 IP akshay.38986 > _gateway.domain: 2238+ PTR? 1.43.168.192.in-addr.arpa. (43)
+23:46:03.844103 IP _gateway.domain > akshay.38986: 2238 NXDomain* 0/1/0 (102)
+23:46:04.206711 IP akshay.43799 > 239.255.255.250.1900: UDP, length 172
+23:46:05.207578 IP akshay.43799 > 239.255.255.250.1900: UDP, length 172
+23:46:06.208245 IP akshay.43799 > 239.255.255.250.1900: UDP, length 172
+23:46:13.467705 IP akshay.60172 > ec2-35-170-0-145.compute-1.amazonaws.com.https: Flags [P.], seq 2101411680:2101411968, ack 178050828, win 380, options [nop,nop,TS val 18755152 ecr 2644678827], length 288
+23:46:13.468940 IP akshay.48658 > _gateway.domain: 13278+ PTR? 145.0.170.35.in-addr.arpa. (43)
+23:46:13.676017 IP ec2-35-170-0-145.compute-1.amazonaws.com.https > akshay.60172: Flags [.], ack 288, win 14, options [nop,nop,TS val 2644718887 ecr 18755152], length 0
+23:46:13.725906 IP _gateway.domain > akshay.48658: 13278 1/0/0 PTR ec2-35-170-0-145.compute-1.amazonaws.com. (97)
+23:46:13.819466 IP ec2-35-170-0-145.compute-1.amazonaws.com.https > akshay.60172: Flags [P.], seq 1:326, ack 288, win 14, options [nop,nop,TS val 2644719115 ecr 18755152], length 325
+23:46:13.819576 IP akshay.60172 > ec2-35-170-0-145.compute-1.amazonaws.com.https: Flags [.], ack 326, win 401, options [nop,nop,TS val 18755503 ecr 2644719115], length 0
+23:46:21.095046 IP akshay.37246 > server-13-33-169-104.maa50.r.cloudfront.net.https: Flags [.], ack 249074292, win 470, options [nop,nop,TS val 1695418667 ecr 2644679437], length 0
+23:46:21.096212 IP akshay.45737 > _gateway.domain: 47134+ PTR? 104.169.33.13.in-addr.arpa. (44)
+23:46:21.254158 IP server-13-33-169-104.maa50.r.cloudfront.net.https > akshay.37246: Flags [.], ack 1, win 14, options [nop,nop,TS val 2644726496 ecr 1695280062], length 0
+23:46:21.254535 IP _gateway.domain > akshay.45737: 47134 1/0/0 PTR server-13-33-169-104.maa50.r.cloudfront.net. (101)
+23:46:32.832573 IP akshay.48144 > _gateway.domain: 38838+ A? play.google.com. (33)
+23:46:32.832751 IP akshay.54923 > _gateway.domain: 17915+ AAAA? play.google.com. (33)
+23:46:33.339079 IP _gateway.domain > akshay.48144: 38838 1/0/0 A 216.58.196.174 (49)
+23:46:33.339415 IP _gateway.domain > akshay.54923: 17915 1/0/0 AAAA 2404:6800:4007:810::200e (61)
+23:46:33.383049 IP akshay.40468 > ec2-34-249-167-4.eu-west-1.compute.amazonaws.com.8282: Flags [.], ack 130177372, win 316, options [nop,nop,TS val 2345753446 ecr 2644692206], length 0
+23:46:33.384107 IP akshay.34991 > _gateway.domain: 24186+ PTR? 4.167.249.34.in-addr.arpa. (43)
+23:46:33.427189 IP akshay.50058 > server-13-33-142-168.maa50.r.cloudfront.net.https: Flags [.], ack 603284274, win 245, options [nop,nop,TS val 575500150 ecr 2644693727], length 0
+23:46:33.428282 IP ec2-35-170-0-145.compute-1.amazonaws.com.https > akshay.60172: Flags [P.], seq 326:358, ack 288, win 14, options [nop,nop,TS val 2644738706 ecr 18755503], length 32
+23:46:33.428374 IP akshay.60172 > ec2-35-170-0-145.compute-1.amazonaws.com.https: Flags [.], ack 358, win 401, options [nop,nop,TS val 18775109 ecr 2644738706], length 0
+23:46:33.430269 IP ec2-34-249-167-4.eu-west-1.compute.amazonaws.com.8282 > akshay.40468: Flags [.], ack 1, win 12, options [nop,nop,TS val 2644738707 ecr 2345661450], length 0
+23:46:33.433088 IP akshay.60172 > ec2-35-170-0-145.compute-1.amazonaws.com.https: Flags [P.], seq 288:460, ack 358, win 401, options [nop,nop,TS val 18775114 ecr 2644738706], length 172
+23:46:33.457010 IP akshay.36221 > _gateway.domain: 59883+ PTR? 168.142.33.13.in-addr.arpa. (44)
+23:46:33.469837 IP server-13-33-142-168.maa50.r.cloudfront.net.https > akshay.50058: Flags [.], ack 1, win 12, options [nop,nop,TS val 2644738767 ecr 575409447], length 0
+23:46:34.297976 IP akshay.38210 > _gateway.domain: 12307+ A? beacons.gvt2.com. (34)
+23:46:34.298474 IP akshay.38453 > _gateway.domain: 6621+ AAAA? beacons.gvt2.com. (34)
+23:46:34.410295 IP _gateway.domain > akshay.38210: 12307 1/0/0 A 172.217.26.195 (50)
+23:46:34.420126 IP _gateway.domain > akshay.38453: 6621 1/0/0 AAAA 2404:6800:4007:802::2003 (62)
+23:46:39.631190 IP akshay.39692 > stackoverflow.com.https: Flags [.], ack 1460109565, win 339, options [nop,nop,TS val 2812893740 ecr 2644699817], length 0
+23:46:39.631302 IP akshay.56970 > ec2-34-226-187-87.compute-1.amazonaws.com.https: Flags [.], ack 714716762, win 401, options [nop,nop,TS val 1531503616 ecr 2644699827], length 0
+23:46:39.632562 IP akshay.57605 > _gateway.domain: 3285+ PTR? 25.206.252.198.in-addr.arpa. (45)
+23:46:39.673820 IP stackoverflow.com.https > akshay.39692: Flags [.], ack 1, win 12, options [nop,nop,TS val 2644744967 ecr 2812803257], length 0
+23:46:39.681631 IP ec2-34-226-187-87.compute-1.amazonaws.com.https > akshay.56970: Flags [.], ack 1, win 13, options [nop,nop,TS val 2644744977 ecr 1531321744], length 0
+23:46:40.499093 IP _gateway.domain > akshay.57605: 3285 1/0/0 PTR stackoverflow.com. (76)
+23:46:40.499212 IP akshay > _gateway: ICMP akshay udp port 57605 unreachable, length 112
+23:47:00.411329 IP akshay.mdns > 224.0.0.251.mdns: 0 [2q] PTR (QM)? _ipps._tcp.local. PTR (QM)? _ipp._tcp.local. (45)
+23:47:00.581104 ARP, Request who-has akshay tell _gateway, length 28
+23:47:00.581140 ARP, Reply akshay is-at f8:28:19:4d:2a:df (oui Unknown), length 28
+23:47:06.255184 IP akshay.37246 > server-13-33-169-104.maa50.r.cloudfront.net.https: Flags [.], ack 1, win 470, options [nop,nop,TS val 1695463819 ecr 2644726496], length 0
+23:47:06.378619 IP server-13-33-169-104.maa50.r.cloudfront.net.https > akshay.37246: Flags [.], ack 1, win 14, options [nop,nop,TS val 2644771667 ecr 1695280062], length 0
+23:47:11.271162 ARP, Request who-has _gateway tell akshay, length 28
+23:47:11.316509 ARP, Reply _gateway is-at 54:b8:02:ec:2d:94 (oui Unknown), length 28
+23:47:13.429853 IP akshay.60172 > ec2-35-170-0-145.compute-1.amazonaws.com.https: Flags [P.], seq 460:748, ack 358, win 401, options [nop,nop,TS val 18815104 ecr 2644738787], length 288
+23:47:13.539961 IP ec2-35-170-0-145.compute-1.amazonaws.com.https > akshay.60172: Flags [.], ack 748, win 15, options [nop,nop,TS val 2644778817 ecr 18815104], length 0
+23:47:13.809477 IP ec2-35-170-0-145.compute-1.amazonaws.com.https > akshay.60172: Flags [P.], seq 358:683, ack 748, win 15, options [nop,nop,TS val 2644779045 ecr 18815104], length 325
+23:47:13.851077 IP akshay.60172 > ec2-35-170-0-145.compute-1.amazonaws.com.https: Flags [.], ack 683, win 422, options [nop,nop,TS val 18815525 ecr 2644779045], length 0
+23:47:18.439049 IP akshay.40468 > ec2-34-249-167-4.eu-west-1.compute.amazonaws.com.8282: Flags [.], ack 1, win 316, options [nop,nop,TS val 2345798494 ecr 2644738707], length 0
+23:47:18.471026 IP akshay.50058 > server-13-33-142-168.maa50.r.cloudfront.net.https: Flags [.], ack 1, win 245, options [nop,nop,TS val 575545186 ecr 2644738767], length 0
+23:47:18.606346 IP ec2-34-249-167-4.eu-west-1.compute.amazonaws.com.8282 > akshay.40468: Flags [.], ack 1, win 12, options [nop,nop,TS val 2644783837 ecr 2345661450], length 0
+23:47:18.607913 IP server-13-33-142-168.maa50.r.cloudfront.net.https > akshay.50058: Flags [.], ack 1, win 12, options [nop,nop,TS val 2644783847 ecr 575409447], length 0
+^C
+59 packets captured
+62 packets received by filter
+3 packets dropped by kernel
+
+
+=> To print all ftp traffic through internet gateway snup: (note that the
+   expression is quoted to prevent the shell from (mis-)interpreting the
+   parentheses):
+Command Line Input: tcpdump 'gateway snup and (port ftp or ftp-data)'
+
+=> To print traffic neither sourced from nor destined for local hosts (if you
+gateway to one other net, this stuff should never make it onto your local net).
+Command Line Input: tcpdump ip and not net 192.168.43.89
+Command Line Output:
+tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
+listening on wlo1, link-type EN10MB (Ethernet), capture size 262144 bytes
+00:00:10.587176 IP akshay.46250 > 34.233.181.142.https: Flags [.], ack 1744125953, win 338, options [nop,nop,TS val 1673720955 ecr 2645511077], length 0
+00:00:10.589617 IP akshay.32884 > _gateway.domain: 63038+ PTR? 142.181.233.34.in-addr.arpa. (45)
+00:00:12.391167 IP akshay.59081 > _gateway.domain: 63038+ PTR? 142.181.233.34.in-addr.arpa. (45)
+00:00:14.339378 IP akshay.53332 > ec2-34-237-73-95.compute-1.amazonaws.com.https: Flags [S], seq 461628254, win 29200, options [mss 1460,sackOK,TS val 3664134576 ecr 0,nop,wscale 7], length 0
+00:00:14.404487 IP ec2-34-237-73-95.compute-1.amazonaws.com.https > akshay.53332: Flags [S.], seq 3815684116, ack 461628255, win 43440, options [mss 1370,sackOK,TS val 2645559917 ecr 3664134576,nop,wscale 12], length 0
+00:00:14.404538 IP akshay.53332 > ec2-34-237-73-95.compute-1.amazonaws.com.https: Flags [.], ack 1, win 229, options [nop,nop,TS val 3664134642 ecr 2645559917], length 0
+00:00:14.404826 IP akshay.53332 > ec2-34-237-73-95.compute-1.amazonaws.com.https: Flags [P.], seq 1:522, ack 1, win 229, options [nop,nop,TS val 3664134642 ecr 2645559917], length 521
+00:00:14.455832 IP ec2-34-237-73-95.compute-1.amazonaws.com.https > akshay.53332: Flags [.], ack 522, win 11, options [nop,nop,TS val 2645559967 ecr 3664134642], length 0
+00:00:14.471160 IP akshay.53326 > ec2-34-237-73-95.compute-1.amazonaws.com.https: Flags [P.], seq 1363695070:1363695107, ack 1056525623, win 338, options [nop,nop,TS val 3664134708 ecr 2645549237], length 37
+00:00:14.529446 IP ec2-34-237-73-95.compute-1.amazonaws.com.https > akshay.53326: Flags [.], ack 37, win 12, options [nop,nop,TS val 2645560037 ecr 3664134708], length 0
+00:00:14.754212 IP ec2-34-237-73-95.compute-1.amazonaws.com.https > akshay.53326: Flags [P.], seq 1:34, ack 37, win 12, options [nop,nop,TS val 2645560264 ecr 3664134708], length 33
+00:00:14.755901 IP ec2-34-237-73-95.compute-1.amazonaws.com.https > akshay.53326: Flags [P.], seq 34:65, ack 37, win 12, options [nop,nop,TS val 2645560264 ecr 3664134708], length 31
+00:00:14.756145 IP akshay.53326 > ec2-34-237-73-95.compute-1.amazonaws.com.https: Flags [.], ack 65, win 338, options [nop,nop,TS val 3664134993 ecr 2645560264], length 0
+00:00:14.756347 IP akshay.53326 > ec2-34-237-73-95.compute-1.amazonaws.com.https: Flags [F.], seq 37, ack 65, win 338, options [nop,nop,TS val 3664134994 ecr 2645560264], length 0
+00:00:14.757187 IP ec2-34-237-73-95.compute-1.amazonaws.com.https > akshay.53326: Flags [F.], seq 65, ack 37, win 12, options [nop,nop,TS val 2645560264 ecr 3664134708], length 0
+00:00:14.757291 IP akshay.53326 > ec2-34-237-73-95.compute-1.amazonaws.com.https: Flags [.], ack 66, win 338, options [nop,nop,TS val 3664134994 ecr 2645560264], length 0
+00:00:14.824247 IP akshay.54164 > 239.255.255.250.1900: UDP, length 172
+00:00:14.842181 IP ec2-34-237-73-95.compute-1.amazonaws.com.https > akshay.53326: Flags [.], ack 38, win 12, options [nop,nop,TS val 2645560312 ecr 3664134994], length 0
+00:00:14.905257 IP ec2-34-237-73-95.compute-1.amazonaws.com.https > akshay.53332: Flags [.], seq 1:1359, ack 522, win 11, options [nop,nop,TS val 2645560403 ecr 3664134642], length 1358
+00:00:14.905369 IP akshay.53332 > ec2-34-237-73-95.compute-1.amazonaws.com.https: Flags [.], ack 1359, win 251, options [nop,nop,TS val 3664135143 ecr 2645560403], length 0
+00:00:15.272395 IP ec2-34-237-73-95.compute-1.amazonaws.com.https > akshay.53332: Flags [.], seq 1359:2717, ack 522, win 11, options [nop,nop,TS val 2645560783 ecr 3664135143], length 1358
+00:00:15.272482 IP akshay.53332 > ec2-34-237-73-95.compute-1.amazonaws.com.https: Flags [.], ack 2717, win 274, options [nop,nop,TS val 3664135510 ecr 2645560783], length 0
+00:00:15.310285 IP ec2-34-237-73-95.compute-1.amazonaws.com.https > akshay.53332: Flags [P.], seq 2717:2928, ack 522, win 11, options [nop,nop,TS val 2645560827 ecr 3664135510], length 211
+00:00:15.310371 IP akshay.53332 > ec2-34-237-73-95.compute-1.amazonaws.com.https: Flags [.], ack 2928, win 295, options [nop,nop,TS val 3664135548 ecr 2645560827], length 0
+00:00:15.312491 IP akshay.53332 > ec2-34-237-73-95.compute-1.amazonaws.com.https: Flags [P.], seq 522:648, ack 2928, win 295, options [nop,nop,TS val 3664135550 ecr 2645560827], length 126
+00:00:15.399015 IP ec2-34-237-73-95.compute-1.amazonaws.com.https > akshay.53332: Flags [.], ack 648, win 11, options [nop,nop,TS val 2645560897 ecr 3664135550], length 0
+00:00:15.597974 IP ec2-34-237-73-95.compute-1.amazonaws.com.https > akshay.53332: Flags [P.], seq 2928:3202, ack 648, win 11, options [nop,nop,TS val 2645561114 ecr 3664135550], length 274
+00:00:15.599739 IP akshay.53332 > ec2-34-237-73-95.compute-1.amazonaws.com.https: Flags [P.], seq 648:1371, ack 3202, win 316, options [nop,nop,TS val 3664135837 ecr 2645561114], length 723
+00:00:15.762792 IP ec2-34-237-73-95.compute-1.amazonaws.com.https > akshay.53332: Flags [.], ack 1371, win 12, options [nop,nop,TS val 2645561177 ecr 3664135837], length 0
+00:00:15.824684 IP akshay.54164 > 239.255.255.250.1900: UDP, length 172
+00:00:15.982881 IP ec2-34-237-73-95.compute-1.amazonaws.com.https > akshay.53332: Flags [P.], seq 3202:3463, ack 1371, win 12, options [nop,nop,TS val 2645561394 ecr 3664135837], length 261
+00:00:15.986605 IP akshay.53332 > ec2-34-237-73-95.compute-1.amazonaws.com.https: Flags [P.], seq 1371:1452, ack 3463, win 338, options [nop,nop,TS val 3664136224 ecr 2645561394], length 81
+00:00:16.043665 IP ec2-34-237-73-95.compute-1.amazonaws.com.https > akshay.53332: Flags [.], ack 1452, win 12, options [nop,nop,TS val 2645561557 ecr 3664136224], length 0
+00:00:16.825085 IP akshay.54164 > 239.255.255.250.1900: UDP, length 172
+00:00:17.824571 IP akshay.mdns > 224.0.0.251.mdns: 0 PTR (QM)? _googlecast._tcp.local. (40)
+00:00:17.824844 IP akshay.mdns > 224.0.0.251.mdns: 0 PTR (QM)? _googlecast._tcp.local. (40)
+00:00:17.825351 IP akshay.54164 > 239.255.255.250.1900: UDP, length 172
+00:00:18.825475 IP akshay.mdns > 224.0.0.251.mdns: 0 PTR (QM)? _googlecast._tcp.local. (40)
+00:00:18.825618 IP akshay.mdns > 224.0.0.251.mdns: 0 PTR (QM)? _googlecast._tcp.local. (40)
+00:00:19.820289 IP stackoverflow.com.https > akshay.40258: Flags [P.], seq 3655785249:3655785310, ack 1475853159, win 12, options [nop,nop,TS val 2645565185 ecr 2813413343], length 61
+00:00:19.826298 IP akshay.40258 > stackoverflow.com.https: Flags [P.], seq 1:40, ack 61, win 339, options [nop,nop,TS val 2813714135 ecr 2645565185], length 39
+00:00:19.830274 IP akshay.40258 > stackoverflow.com.https: Flags [P.], seq 40:79, ack 61, win 339, options [nop,nop,TS val 2813714139 ecr 2645565185], length 39
+00:00:19.834297 IP akshay.40258 > stackoverflow.com.https: Flags [P.], seq 79:118, ack 61, win 339, options [nop,nop,TS val 2813714143 ecr 2645565185], length 39
+00:00:19.838244 IP akshay.40258 > stackoverflow.com.https: Flags [P.], seq 118:157, ack 61, win 339, options [nop,nop,TS val 2813714147 ecr 2645565185], length 39
+00:00:19.890941 IP stackoverflow.com.https > akshay.40258: Flags [.], ack 40, win 12, options [nop,nop,TS val 2645565407 ecr 2813714135], length 0
+00:00:19.891887 IP stackoverflow.com.https > akshay.40258: Flags [.], ack 79, win 12, options [nop,nop,TS val 2645565407 ecr 2813714139], length 0
+00:00:20.826270 IP akshay.mdns > 224.0.0.251.mdns: 0 PTR (QM)? _googlecast._tcp.local. (40)
+00:00:20.826717 IP akshay.mdns > 224.0.0.251.mdns: 0 PTR (QM)? _googlecast._tcp.local. (40)
+00:00:28.685212 IP _gateway.mdns > 224.0.0.251.mdns: 27 [3q] PTR (QM)? _674A0243._sub._googlecast._tcp.local. PTR (QM)? _8E6C866D._sub._googlecast._tcp.local. PTR (QM)? _googlecast._tcp.local. (77)
+00:00:33.140978 IP akshay.34467 > _gateway.domain: 50853+ [1au] A? connectivity-check.ubuntu.com. (58)
+00:00:33.433175 IP akshay.53332 > ec2-34-237-73-95.compute-1.amazonaws.com.https: Flags [P.], seq 1452:1624, ack 3463, win 338, options [nop,nop,TS val 3664153676 ecr 2645561557], length 172
+00:00:33.735056 IP akshay.53332 > ec2-34-237-73-95.compute-1.amazonaws.com.https: Flags [P.], seq 1452:1624, ack 3463, win 338, options [nop,nop,TS val 3664153978 ecr 2645561557], length 172
+00:00:34.023159 IP akshay.53332 > ec2-34-237-73-95.compute-1.amazonaws.com.https: Flags [P.], seq 1452:1624, ack 3463, win 338, options [nop,nop,TS val 3664154266 ecr 2645561557], length 172
+00:00:34.140768 IP akshay.34467 > _gateway.domain: 50853+ [1au] A? connectivity-check.ubuntu.com. (58)
+00:00:34.358944 IP akshay.53336 > ec2-34-237-73-95.compute-1.amazonaws.com.https: Flags [S], seq 3097124949, win 29200, options [mss 1460,sackOK,TS val 3664154602 ecr 0,nop,wscale 7], length 0
+00:00:34.496115 IP ec2-34-237-73-95.compute-1.amazonaws.com.https > akshay.53336: Flags [S.], seq 2782474292, ack 3097124950, win 43440, options [mss 1370,sackOK,TS val 2645579917 ecr 3664154602,nop,wscale 12], length 0
+00:00:34.496253 IP akshay.53336 > ec2-34-237-73-95.compute-1.amazonaws.com.https: Flags [.], ack 1, win 229, options [nop,nop,TS val 3664154739 ecr 2645579917], length 0
+00:00:34.497057 IP akshay.53336 > ec2-34-237-73-95.compute-1.amazonaws.com.https: Flags [P.], seq 1:522, ack 1, win 229, options [nop,nop,TS val 3664154740 ecr 2645579917], length 521
+00:00:34.599194 IP akshay.53332 > ec2-34-237-73-95.compute-1.amazonaws.com.https: Flags [P.], seq 1452:1624, ack 3463, win 338, options [nop,nop,TS val 3664154842 ecr 2645561557], length 172
+00:00:34.681337 IP ec2-34-237-73-95.compute-1.amazonaws.com.https > akshay.53336: Flags [.], ack 522, win 11, options [nop,nop,TS val 2645580127 ecr 3664154740], length 0
+00:00:34.739369 IP ec2-34-237-73-95.compute-1.amazonaws.com.https > akshay.53332: Flags [.], ack 1624, win 12, options [nop,nop,TS val 2645580187 ecr 3664154842], length 0
+00:00:34.739474 IP akshay.53332 > ec2-34-237-73-95.compute-1.amazonaws.com.https: Flags [P.], seq 1624:1661, ack 3463, win 338, options [nop,nop,TS val 3664154983 ecr 2645580187], length 37
+00:00:34.852078 IP akshay.39296 > 239.255.255.250.1900: UDP, length 172
+00:00:35.047177 IP akshay.53332 > ec2-34-237-73-95.compute-1.amazonaws.com.https: Flags [P.], seq 1624:1661, ack 3463, win 338, options [nop,nop,TS val 3664155290 ecr 2645580187], length 37
+00:00:35.072748 IP ec2-34-237-73-95.compute-1.amazonaws.com.https > akshay.53332: Flags [.], ack 1661, win 12, options [nop,nop,TS val 2645580477 ecr 3664154983], length 0
+00:00:35.174518 IP ec2-34-237-73-95.compute-1.amazonaws.com.https > akshay.53336: Flags [.], seq 1:1359, ack 522, win 11, options [nop,nop,TS val 2645580573 ecr 3664154740], length 1358
+00:00:35.174623 IP akshay.53336 > ec2-34-237-73-95.compute-1.amazonaws.com.https: Flags [.], ack 1359, win 251, options [nop,nop,TS val 3664155418 ecr 2645580573], length 0
+00:00:35.200005 IP ec2-34-237-73-95.compute-1.amazonaws.com.https > akshay.53336: Flags [.], seq 1359:2717, ack 522, win 11, options [nop,nop,TS val 2645580573 ecr 3664154740], length 1358
+00:00:35.200093 IP akshay.53336 > ec2-34-237-73-95.compute-1.amazonaws.com.https: Flags [.], ack 2717, win 274, options [nop,nop,TS val 3664155443 ecr 2645580573], length 0
+00:00:35.203199 IP ec2-34-237-73-95.compute-1.amazonaws.com.https > akshay.53336: Flags [P.], seq 2717:2928, ack 522, win 11, options [nop,nop,TS val 2645580573 ecr 3664154740], length 211
+00:00:35.203287 IP akshay.53336 > ec2-34-237-73-95.compute-1.amazonaws.com.https: Flags [.], ack 2928, win 295, options [nop,nop,TS val 3664155447 ecr 2645580573], length 0
+00:00:35.205239 IP akshay.53336 > ec2-34-237-73-95.compute-1.amazonaws.com.https: Flags [P.], seq 522:648, ack 2928, win 295, options [nop,nop,TS val 3664155449 ecr 2645580573], length 126
+00:00:35.210961 IP6, wrong link-layer encapsulation
+00:00:35.212565 IP ec2-34-237-73-95.compute-1.amazonaws.com.https > akshay.53332: Flags [.], ack 1661, win 12, options [nop,nop,TS val 2645580612 ecr 3664155290,nop,nop,sack 1 {1624:1661}], length 0
+00:00:35.224776 IP akshay.39313 > _gateway.domain: 10046+ [1au] A? daisy.ubuntu.com. (45)
+00:00:35.225461 IP akshay.56131 > _gateway.domain: 635+ [1au] AAAA? daisy.ubuntu.com. (45)
+00:00:35.229307 IP _gateway.domain > akshay.39313: 10046 2/0/0 A 162.213.33.108, A 162.213.33.132 (66)
+00:00:35.229865 IP akshay.39313 > _gateway.domain: 11147+ [1au] A? daisy.ubuntu.com. (45)
+00:00:35.231146 IP _gateway.domain > akshay.56131: 635 0/0/0 (34)
+00:00:35.231572 IP akshay.56131 > _gateway.domain: 54709+ [1au] AAAA? daisy.ubuntu.com. (45)
+00:00:35.240598 IP _gateway.domain > akshay.39313: 11147 2/0/0 A 162.213.33.108, A 162.213.33.132 (66)
+00:00:35.241201 IP akshay.39313 > _gateway.domain: 40978+ [1au] A? daisy.ubuntu.com. (45)
+00:00:35.254300 IP _gateway.domain > akshay.56131: 54709 0/0/0 (34)
+00:00:35.254756 IP akshay.56131 > _gateway.domain: 40737+ [1au] AAAA? daisy.ubuntu.com. (45)
+00:00:35.261206 IP _gateway.domain > akshay.39313: 40978 2/0/0 A 162.213.33.108, A 162.213.33.132 (66)
+00:00:35.261678 IP akshay.39313 > _gateway.domain: 60931+ [1au] A? daisy.ubuntu.com. (45)
+00:00:35.332995 IP ec2-34-237-73-95.compute-1.amazonaws.com.https > akshay.53336: Flags [.], ack 648, win 11, options [nop,nop,TS val 2645580767 ecr 3664155449], length 0
+00:00:35.532941 IP ec2-34-237-73-95.compute-1.amazonaws.com.https > akshay.53336: Flags [P.], seq 2928:3202, ack 648, win 11, options [nop,nop,TS val 2645580989 ecr 3664155449], length 274
+00:00:35.534166 IP akshay.53336 > ec2-34-237-73-95.compute-1.amazonaws.com.https: Flags [P.], seq 648:1371, ack 3202, win 316, options [nop,nop,TS val 3664155778 ecr 2645580989], length 723
+00:00:35.613064 IP ec2-34-237-73-95.compute-1.amazonaws.com.https > akshay.53332: Flags [FP.], seq 3463:3527, ack 1661, win 12, options [nop,nop,TS val 2645581075 ecr 3664155290], length 64
+00:00:35.613534 IP akshay.53332 > ec2-34-237-73-95.compute-1.amazonaws.com.https: Flags [F.], seq 1661, ack 3528, win 338, options [nop,nop,TS val 3664155857 ecr 2645581075], length 0
+00:00:35.641244 IP ec2-34-237-73-95.compute-1.amazonaws.com.https > akshay.53336: Flags [.], ack 1371, win 12, options [nop,nop,TS val 2645581107 ecr 3664155778], length 0
+00:00:35.704429 IP ec2-34-237-73-95.compute-1.amazonaws.com.https > akshay.53332: Flags [.], ack 1662, win 12, options [nop,nop,TS val 2645581187 ecr 3664155857], length 0
+00:00:35.852395 IP akshay.39296 > 239.255.255.250.1900: UDP, length 172
+00:00:35.963394 IP ec2-34-237-73-95.compute-1.amazonaws.com.https > akshay.53336: Flags [P.], seq 3202:3412, ack 1371, win 12, options [nop,nop,TS val 2645581329 ecr 3664155778], length 210
+00:00:35.967129 IP akshay.53336 > ec2-34-237-73-95.compute-1.amazonaws.com.https: Flags [P.], seq 1371:1452, ack 3412, win 338, options [nop,nop,TS val 3664156211 ecr 2645581329], length 81
+00:00:35.971269 IP ec2-34-237-73-95.compute-1.amazonaws.com.https > akshay.53336: Flags [P.], seq 3412:3463, ack 1371, win 12, options [nop,nop,TS val 2645581329 ecr 3664155778], length 51
+00:00:36.010183 IP ec2-34-237-73-95.compute-1.amazonaws.com.https > akshay.53336: Flags [.], ack 1452, win 12, options [nop,nop,TS val 2645581532 ecr 3664156211], length 0
+00:00:36.015185 IP akshay.53336 > ec2-34-237-73-95.compute-1.amazonaws.com.https: Flags [.], ack 3463, win 338, options [nop,nop,TS val 3664156259 ecr 2645581329], length 0
+00:00:36.140979 IP akshay.39313 > _gateway.domain: 60931+ [1au] A? daisy.ubuntu.com. (45)
+00:00:36.154650 IP _gateway.domain > akshay.39313: 60931 2/0/0 A 162.213.33.108, A 162.213.33.132 (66)
+00:00:36.155221 IP akshay.39313 > _gateway.domain: 26078+ [1au] A? daisy.ubuntu.com. (45)
+00:00:36.159183 IP _gateway.domain > akshay.39313: 26078 2/0/0 A 162.213.33.108, A 162.213.33.132 (66)
+00:00:36.159551 IP akshay.39313 > _gateway.domain: 49760+ [1au] A? daisy.ubuntu.com. (45)
+00:00:36.163632 IP _gateway.domain > akshay.39313: 49760 2/0/0 A 162.213.33.108, A 162.213.33.132 (66)
+00:00:36.164071 IP akshay.39313 > _gateway.domain: 51879+ [1au] A? daisy.ubuntu.com. (45)
+00:00:36.169697 IP _gateway.domain > akshay.39313: 51879 2/0/0 A 162.213.33.108, A 162.213.33.132 (66)
+00:00:36.170110 IP akshay.39313 > _gateway.domain: 33906+ [1au] A? daisy.ubuntu.com. (45)
+00:00:36.183731 IP _gateway.domain > akshay.39313: 33906 2/0/0 A 162.213.33.108, A 162.213.33.132 (66)
+00:00:36.184151 IP akshay.39313 > _gateway.domain: 40095+ [1au] A? daisy.ubuntu.com. (45)
+00:00:36.186385 IP _gateway.domain > akshay.39313: 40095 2/0/0 A 162.213.33.108, A 162.213.33.132 (66)
+00:00:36.186786 IP akshay.39313 > _gateway.domain: 3783+ [1au] A? daisy.ubuntu.com. (45)
+00:00:36.189600 IP _gateway.domain > akshay.39313: 3783 2/0/0 A 162.213.33.108, A 162.213.33.132 (66)
+00:00:36.190000 IP akshay.39313 > _gateway.domain: 34575+ [1au] A? daisy.ubuntu.com. (45)
+00:00:36.193430 IP _gateway.domain > akshay.39313: 34575 2/0/0 A 162.213.33.108, A 162.213.33.132 (66)
+00:00:36.193846 IP akshay.39313 > _gateway.domain: 4519+ [1au] A? daisy.ubuntu.com. (45)
+00:00:36.205472 IP _gateway.domain > akshay.39313: 4519 2/0/0 A 162.213.33.108, A 162.213.33.132 (66)
+00:00:36.205939 IP akshay.39313 > _gateway.domain: 23569+ [1au] A? daisy.ubuntu.com. (45)
+00:00:36.208941 IP _gateway.domain > akshay.39313: 23569 2/0/0 A 162.213.33.108, A 162.213.33.132 (66)
+00:00:36.209378 IP akshay.39313 > _gateway.domain: 2869+ [1au] A? daisy.ubuntu.com. (45)
+00:00:36.212659 IP _gateway.domain > akshay.39313: 2869 2/0/0 A 162.213.33.108, A 162.213.33.132 (66)
+00:00:36.213069 IP akshay.39313 > _gateway.domain: 39461+ [1au] A? daisy.ubuntu.com. (45)
+00:00:36.221314 IP _gateway.domain > akshay.39313: 39461 2/0/0 A 162.213.33.108, A 162.213.33.132 (66)
+00:00:36.221765 IP akshay.39313 > _gateway.domain: 40505+ [1au] A? daisy.ubuntu.com. (45)
+00:00:36.229289 IP _gateway.domain > akshay.39313: 40505 2/0/0 A 162.213.33.108, A 162.213.33.132 (66)
+00:00:36.229768 IP akshay.39313 > _gateway.domain: 32499+ [1au] A? daisy.ubuntu.com. (45)
+00:00:36.235179 IP _gateway.domain > akshay.39313: 32499 2/0/0 A 162.213.33.108, A 162.213.33.132 (66)
+00:00:36.235642 IP akshay.39313 > _gateway.domain: 29459+ [1au] A? daisy.ubuntu.com. (45)
+00:00:36.237355 IP _gateway.domain > akshay.39313: 29459 2/0/0 A 162.213.33.108, A 162.213.33.132 (66)
+00:00:36.237769 IP akshay.39313 > _gateway.domain: 565+ [1au] A? daisy.ubuntu.com. (45)
+00:00:36.244329 IP _gateway.domain > akshay.39313: 565 2/0/0 A 162.213.33.108, A 162.213.33.132 (66)
+00:00:36.244788 IP akshay.39313 > _gateway.domain: 24572+ [1au] A? daisy.ubuntu.com. (45)
+00:00:36.246670 IP _gateway.domain > akshay.39313: 24572 2/0/0 A 162.213.33.108, A 162.213.33.132 (66)
+00:00:36.247130 IP akshay.39313 > _gateway.domain: 11330+ [1au] A? daisy.ubuntu.com. (45)
+00:00:36.251767 IP _gateway.domain > akshay.39313: 11330 2/0/0 A 162.213.33.108, A 162.213.33.132 (66)
+00:00:36.252205 IP akshay.39313 > _gateway.domain: 40558+ [1au] A? daisy.ubuntu.com. (45)
+00:00:36.255400 IP _gateway.domain > akshay.39313: 40558 2/0/0 A 162.213.33.108, A 162.213.33.132 (66)
+00:00:36.255886 IP akshay.39313 > _gateway.domain: 19901+ [1au] A? daisy.ubuntu.com. (45)
+00:00:36.259718 IP _gateway.domain > akshay.39313: 19901 2/0/0 A 162.213.33.108, A 162.213.33.132 (66)
+00:00:36.853205 IP akshay.39296 > 239.255.255.250.1900: UDP, length 172
+00:00:37.225155 IP akshay.46250 > 34.233.181.142.https: Flags [P.], seq 1:409, ack 1, win 338, options [nop,nop,TS val 1673747601 ecr 2645511077], length 408
+00:00:37.226094 IP akshay.46250 > 34.233.181.142.https: Flags [P.], seq 409:455, ack 1, win 338, options [nop,nop,TS val 1673747602 ecr 2645511077], length 46
+00:00:37.339181 IP akshay.46250 > 34.233.181.142.https: Flags [P.], seq 409:455, ack 1, win 338, options [nop,nop,TS val 1673747715 ecr 2645511077], length 46
+00:00:37.359570 IP 34.233.181.142.https > akshay.46250: Flags [.], ack 409, win 12, options [nop,nop,TS val 2645582792 ecr 1673747601], length 0
+00:00:37.360094 IP 34.233.181.142.https > akshay.46250: Flags [.], ack 455, win 12, options [nop,nop,TS val 2645582792 ecr 1673747602], length 0
+00:00:37.479944 IP 34.233.181.142.https > akshay.46250: Flags [.], ack 455, win 12, options [nop,nop,TS val 2645582917 ecr 1673747715,nop,nop,sack 1 {409:455}], length 0
+00:00:37.592565 IP 34.233.181.142.https > akshay.46250: Flags [P.], seq 1:227, ack 455, win 12, options [nop,nop,TS val 2645583009 ecr 1673747715], length 226
+00:00:37.635195 IP akshay.46250 > 34.233.181.142.https: Flags [.], ack 227, win 359, options [nop,nop,TS val 1673748011 ecr 2645583009], length 0
+00:00:37.705087 IP 34.233.181.142.https > akshay.46250: Flags [P.], seq 227:273, ack 455, win 12, options [nop,nop,TS val 2645583225 ecr 1673748011], length 46
+00:00:37.705215 IP akshay.46250 > 34.233.181.142.https: Flags [.], ack 273, win 359, options [nop,nop,TS val 1673748081 ecr 2645583225], length 0
+00:00:37.852076 IP akshay.mdns > 224.0.0.251.mdns: 0 PTR (QM)? _googlecast._tcp.local. (40)
+00:00:37.852402 IP akshay.mdns > 224.0.0.251.mdns: 0 PTR (QM)? _googlecast._tcp.local. (40)
+00:00:37.853361 IP akshay.39296 > 239.255.255.250.1900: UDP, length 172
+00:00:38.853153 IP akshay.mdns > 224.0.0.251.mdns: 0 PTR (QM)? _googlecast._tcp.local. (40)
+00:00:38.853472 IP akshay.mdns > 224.0.0.251.mdns: 0 PTR (QM)? _googlecast._tcp.local. (40)
+00:00:40.853812 IP akshay.mdns > 224.0.0.251.mdns: 0 PTR (QM)? _googlecast._tcp.local. (40)
+00:00:40.854253 IP akshay.mdns > 224.0.0.251.mdns: 0 PTR (QM)? _googlecast._tcp.local. (40)
+^C00:00:42.640884 IP akshay.50284 > 91.189.89.198.ntp: NTPv4, Client, length 48
+
+158 packets captured
+167 packets received by filter
+3 packets dropped by kernel
+
+
+=> To print the start and end packets (the SYN and FIN packets) of each
+TCP conversation that involves a non-local host.
+Command Line Input: tcpdump 'tcp[tcpflags] & (tcp-syn|tcp-fin) != 0 and not src and dst net 192.168.43.89'
+Command Line Output:
+tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
+listening on wlo1, link-type EN10MB (Ethernet), capture size 262144 bytes
+23:55:39.149490 IP akshay.60278 > ec2-35-170-0-145.compute-1.amazonaws.com.https: Flags [S], seq 2275737118, win 29200, options [mss 1460,sackOK,TS val 19320797 ecr 0,nop,wscale 7], length 0
+23:55:39.352990 IP ec2-35-170-0-145.compute-1.amazonaws.com.https > akshay.60278: Flags [S.], seq 2548819523, ack 2275737119, win 43440, options [mss 1370,sackOK,TS val 2645284467 ecr 19320797,nop,wscale 12], length 0
+23:55:40.478542 IP akshay.37364 > server-13-33-169-104.maa50.r.cloudfront.net.https: Flags [S], seq 3223685164, win 29200, options [mss 1460,sackOK,TS val 1695978014 ecr 0,nop,wscale 7], length 0
+23:55:40.509760 IP server-13-33-169-104.maa50.r.cloudfront.net.https > akshay.37364: Flags [S.], seq 3930963774, ack 3223685165, win 43440, options [mss 1370,sackOK,TS val 2645285787 ecr 1695978014,nop,wscale 12], length 0
+23:56:22.305881 IP akshay.46250 > ec2-34-233-181-142.compute-1.amazonaws.com.https: Flags [S], seq 1827842183, win 29200, options [mss 1460,sackOK,TS val 1673492438 ecr 0,nop,wscale 7], length 0
+23:56:22.354011 IP ec2-34-233-181-142.compute-1.amazonaws.com.https > akshay.46250: Flags [S.], seq 1744122326, ack 1827842184, win 43440, options [mss 1370,sackOK,TS val 2645327627 ecr 1673492438,nop,wscale 12], length 0
+^C
+6 packets captured
+6 packets received by filter
+0 packets dropped by kernel
+
+
+
+=> To print all IPv4 HTTP packets to and from port 80, i.e. print only packets that contain data, not, for example, SYN and FIN packets and ACK-only packets. (IPv6 is left as an exercise for the reader.)
+Command Line Input: tcpdump 'tcp port 80 and (((ip[2:2] - ((ip[0]&0xf)<<2)) - ((tcp[12]&0xf0)>>2)) != 0)'
+
+=> To print IP packets longer than 576 bytes sent through gateway snup:
+Command Line Input: tcpdump 'gateway snup and ip[2:2] > 576'
+
+=> To print IP broadcast or multicast packets that were not sent via Ethernet broadcast or multicast:
+Command Line Input: tcpdump 'ether[0] & 1 = 0 and ip[16] >= 224'
+
+=> To print all ICMP packets that are not echo requests/replies (i.e., not ping packets):
+Command Line Input: tcpdump 'icmp[icmptype] != icmp-echo and icmp[icmptype] != icmp-echoreply'
+
+
+END
